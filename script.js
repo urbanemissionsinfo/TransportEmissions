@@ -18,6 +18,18 @@
     return e;
   }
  
+  // ---------- pollutant profiles (Default g/km EFs) ----------
+  const POLLUTANTS = {
+    'PM2.5': { label: 'PM₂.₅ (Particulate Matter ≤ 2.5 µm)', unit: 'tons/yr', defaults: { 'Cars': 0.02, '2-Wheelers': 0.01, '3-Wheelers': 0.03, 'Bus': 0.25, 'Truck': 0.35, 'Walking': 0, 'Bicycle': 0 } },
+    'PM10':  { label: 'PM₁₀ (Particulate Matter ≤ 10 µm)',  unit: 'tons/yr', defaults: { 'Cars': 0.03, '2-Wheelers': 0.015, '3-Wheelers': 0.04, 'Bus': 0.35, 'Truck': 0.50, 'Walking': 0, 'Bicycle': 0 } },
+    'NOx':   { label: 'NOₓ (Nitrogen Oxides)',               unit: 'tons/yr', defaults: { 'Cars': 0.40, '2-Wheelers': 0.15, '3-Wheelers': 0.35, 'Bus': 6.50, 'Truck': 7.00, 'Walking': 0, 'Bicycle': 0 } },
+    'CO':    { label: 'CO (Carbon Monoxide)',              unit: 'tons/yr', defaults: { 'Cars': 1.20, '2-Wheelers': 1.80, '3-Wheelers': 2.20, 'Bus': 3.50, 'Truck': 4.00, 'Walking': 0, 'Bicycle': 0 } },
+    'SO2':   { label: 'SO₂ (Sulphur Dioxide)',             unit: 'tons/yr', defaults: { 'Cars': 0.005, '2-Wheelers': 0.002, '3-Wheelers': 0.004, 'Bus': 0.02, 'Truck': 0.03, 'Walking': 0, 'Bicycle': 0 } },
+    'VOC':   { label: 'VOC/NMHC (Ozone Precursors)',       unit: 'tons/yr', defaults: { 'Cars': 0.15, '2-Wheelers': 0.50, '3-Wheelers': 0.40, 'Bus': 0.85, 'Truck': 1.20, 'Walking': 0, 'Bicycle': 0 } }
+  };
+
+  let currentPollutant = 'PM2.5';
+
   // ---------- equation configs ----------
   const EQUATIONS = [
     {
@@ -25,11 +37,10 @@
       title: 'Method 1 — Vehicle-Kilometres Travelled (VKT)',
       type: 'modes',
       totalKey: 'J', totalUnit: 'tons / year', totalLabel: 'Total Emissions',
-      secondaryKey: 'I', secondaryUnit: 'million litres / year', secondaryLabel: 'Total Fuel Consumed',
       fields: [
         {key:'C', label:'Number of Vehicles', unit:'vehicles', min:0, max:2000000, step:1000, dec:0},
         {key:'D', label:'Distance Travelled', unit:'km/day', min:0, max:150, step:1, dec:0},
-        {key:'E', label:'Emission Factor', unit:'g/km', min:0, max:2, step:0.01, dec:2},
+        {key:'E', label:'Emission Factor', unit:'g/km', min:0, max:10, step:0.01, dec:2}, // Increased max to handle CO/NOx
         {key:'F', label:'Operational Days', unit:'days/yr', min:0, max:365, step:1, dec:0},
         {key:'G', label:'Fuel Efficiency', unit:'km/L', min:0.5, max:60, step:0.5, dec:1},
       ],
@@ -39,11 +50,11 @@
         {key:'J', label:'Emissions', unit:'tons/yr', dec:1},
       ],
       rows: [
-        {name:'Cars', C:500000, D:40, E:0.20, F:310, G:12},
-        {name:'2-Wheelers', C:1000000, D:40, E:0.05, F:220, G:30},
-        {name:'3-Wheelers', C:50000, D:200, E:0.20, F:330, G:25},
-        {name:'Bus', C:5000, D:150, E:1.50, F:330, G:3},
-        {name:'Truck', C:5000, D:100, E:2.00, F:300, G:3},
+        {name:'Cars', C:500000, D:40, F:310, G:12},
+        {name:'2-Wheelers', C:1000000, D:40, F:220, G:30},
+        {name:'3-Wheelers', C:50000, D:200, F:330, G:25},
+        {name:'Bus', C:5000, D:150, F:330, G:3},
+        {name:'Truck', C:5000, D:100, F:300, G:3},
       ],
       compute(row){
         const H = row.C * row.D * row.F / 1e6;
@@ -62,12 +73,11 @@
       title: 'Method 2 — Fuel Sales / Fuel Consumption',
       type: 'modes',
       totalKey: 'H', totalUnit: 'tons / year', totalLabel: 'Total Emissions',
-      secondaryKey: 'G', secondaryUnit: 'million km / year', secondaryLabel: 'Total Distance Travelled',
       topControl: {key:'totalFuel', label:'City-wide Fuel Consumption', unit:'million litres / year', min:0, max:5000, step:50, value:1000, dec:0},
       fields: [
         {key:'C', label:'Share of Fuel Used', unit:'%', min:0, max:100, step:1, dec:0},
-        {key:'E', label:'Fuel Efficiency', unit:'km/L', min:0, max:60, step:0.5, dec:1},
-        {key:'F', label:'Emission Factor', unit:'g/km', min:0, max:2, step:0.01, dec:2},
+        {key:'E', label:'Fuel Efficiency', unit:'km/L', min:0.5, max:60, step:0.5, dec:1},
+        {key:'F', label:'Emission Factor', unit:'g/km', min:0, max:10, step:0.01, dec:2},
       ],
       outputs: [
         {key:'D', label:'Fuel Consumed', unit:'million L/yr', dec:1},
@@ -75,13 +85,13 @@
         {key:'H', label:'Emissions', unit:'tons/yr', dec:1},
       ],
       rows: [
-        {name:'Cars', C:50, E:12, F:0.20},
-        {name:'2-Wheelers', C:30, E:30, F:0.05},
-        {name:'3-Wheelers', C:10, E:12, F:0.20},
-        {name:'Bus', C:5, E:5, F:1.50},
-        {name:'Truck', C:5, E:5, F:2.00},
-        {name:'Walking', C:0, E:0, F:0},
-        {name:'Bicycle', C:0, E:0, F:0},
+        {name:'Cars', C:50, E:12},
+        {name:'2-Wheelers', C:30, E:30},
+        {name:'3-Wheelers', C:10, E:12},
+        {name:'Bus', C:5, E:5},
+        {name:'Truck', C:5, E:5},
+        {name:'Walking', C:0, E:0},
+        {name:'Bicycle', C:0, E:0},
       ],
       compute(row, ctx){
         const D = row.C * ctx.totalFuel / 100;
@@ -100,14 +110,13 @@
       title: 'Method 3 — Passenger Trip-Based',
       type: 'modes',
       totalKey: 'J', totalUnit: 'tons / year', totalLabel: 'Total Emissions',
-      secondaryKey: 'I', secondaryUnit: 'million km / year', secondaryLabel: 'Total Distance Travelled',
       topControl: {key:'totalTrips', label:'City-wide Passenger Trips', unit:'million trips / year', min:0, max:30000, step:100, value:7000, dec:0},
       fields: [
         {key:'C', label:'Share of Trips', unit:'%', min:0, max:100, step:1, dec:0},
         {key:'E', label:'Avg. Trip Length', unit:'km/trip', min:0, max:50, step:0.5, dec:1},
         {key:'F', label:'Occupancy', unit:'persons/vehicle', min:0.5, max:150, step:0.5, dec:1},
         {key:'G', label:'Fuel Efficiency', unit:'km/L', min:0, max:60, step:0.5, dec:1},
-        {key:'H', label:'Emission Factor', unit:'g/km', min:0, max:2, step:0.01, dec:2},
+        {key:'H', label:'Emission Factor', unit:'g/km', min:0, max:10, step:0.01, dec:2},
       ],
       outputs: [
         {key:'D', label:'Trips per Mode', unit:'million trips/yr', dec:1},
@@ -116,12 +125,12 @@
         {key:'K', label:'Fuel Consumed', unit:'million L/yr', dec:1},
       ],
       rows: [
-        {name:'Cars', C:20, E:10, F:1.5, G:12, H:0.20},
-        {name:'2-Wheelers', C:20, E:5, F:1.2, G:30, H:0.05},
-        {name:'3-Wheelers', C:5, E:6, F:5, G:25, H:0.20},
-        {name:'Bus', C:25, E:10, F:80, G:3, H:1.50},
-        {name:'Walking', C:15, E:1, F:1, G:0, H:0},
-        {name:'Bicycle', C:15, E:1, F:1, G:0, H:0},
+        {name:'Cars', C:20, E:10, F:1.5, G:12},
+        {name:'2-Wheelers', C:20, E:5, F:1.2, G:30},
+        {name:'3-Wheelers', C:5, E:6, F:5, G:25},
+        {name:'Bus', C:25, E:10, F:80, G:3},
+        {name:'Walking', C:15, E:1, F:1, G:0},
+        {name:'Bicycle', C:15, E:1, F:1, G:0},
       ],
       compute(row, ctx){
         const D = row.C * ctx.totalTrips / 100;
@@ -161,14 +170,29 @@
     },
   ];
  
-  // ---------- state ----------
+  // ---------- state init ----------
   const state = {};
+  
+  function applyPollutantDefaults(eqId, polKey) {
+    const eq = EQUATIONS.find(e => e.id === eqId);
+    if (!eq || eq.type !== 'modes') return;
+    
+    const defaults = POLLUTANTS[polKey].defaults;
+    const efFieldKey = eqId === 'eq1' ? 'E' : 'F'; // Method 1 uses 'E', Method 2 & 3 use 'F' or 'H'
+    const finalEfKey = eqId === 'eq1' ? 'E' : (eqId === 'eq2' ? 'F' : 'H');
+
+    state[eqId].rows.forEach(row => {
+      row[finalEfKey] = defaults[row.name] !== undefined ? defaults[row.name] : 0.00;
+    });
+  }
+
   EQUATIONS.forEach(eq => {
     if (eq.type === 'modes') {
       state[eq.id] = {
         rows: eq.rows.map(r => ({...r})),
         ctx: eq.topControl ? {[eq.topControl.key]: eq.topControl.value} : {}
       };
+      applyPollutantDefaults(eq.id, currentPollutant);
     } else {
       const p = {};
       eq.params.forEach(f => p[f.key] = f.value);
@@ -180,6 +204,31 @@
   const tabsEl = document.getElementById('vapis-tabs');
   const panelsEl = document.getElementById('vapis-panels');
  
+  // ---------- build pollutant selector global widget ----------
+  const headerEl = document.querySelector('.vapis-header');
+  const selectorWrap = el('div', {class: 'vapis-pollutant-selector-wrap'});
+  selectorWrap.appendChild(el('label', {for: 'vapis-pollutant-select'}, 'Target Air Pollutant: '));
+  
+  const selectDropdown = el('select', {id: 'vapis-pollutant-select'});
+  for (const [key, obj] of Object.entries(POLLUTANTS)) {
+    selectDropdown.appendChild(el('option', {value: key}, obj.label));
+  }
+  
+  selectDropdown.addEventListener('change', (e) => {
+    currentPollutant = e.target.value;
+    // Update labels and re-inject default factors
+    EQUATIONS.forEach(eq => {
+      if (eq.type === 'modes') {
+        applyPollutantDefaults(eq.id, currentPollutant);
+        rebuildModesPanel(eq);
+      }
+      renderAll(eq);
+    });
+  });
+  
+  selectorWrap.appendChild(selectDropdown);
+  headerEl.after(selectorWrap);
+
   // ---------- build tabs ----------
   EQUATIONS.forEach((eq, i) => {
     const tab = el('button', {class:'vapis-tab' + (i===0?' active':''), 'data-target':eq.id, role:'tab'},
@@ -198,31 +247,34 @@
   // ---------- build panels ----------
   EQUATIONS.forEach(eq => {
     const panel = el('div', {class:'vapis-panel' + (eq === EQUATIONS[0] ? ' active' : ''), id:'vapis-panel-' + eq.id});
-    panel.appendChild(el('h2', null, eq.title));
- 
-    // summary card
+
+    const frozen = el('div', {class:'vapis-panel-frozen'});
+    frozen.appendChild(el('h2', null, eq.title));
     const summary = el('div', {class:'vapis-summary', id:'vapis-summary-' + eq.id});
-    panel.appendChild(summary);
- 
+    frozen.appendChild(summary);
+    panel.appendChild(frozen);
+
+    const scroll = el('div', {class:'vapis-scroll'});
     if (eq.type === 'modes') {
       if (eq.topControl) {
-        panel.appendChild(buildTopControl(eq));
+        scroll.appendChild(buildTopControl(eq));
       }
       const modesWrap = el('div', {class:'vapis-modes'});
       eq.rows.forEach((row, idx) => modesWrap.appendChild(buildModeCard(eq, idx)));
-      panel.appendChild(modesWrap);
+      scroll.appendChild(modesWrap);
     } else {
       const grid = el('div', {class:'vapis-params-grid'});
       eq.params.forEach(f => grid.appendChild(buildParamCard(eq, f)));
-      panel.appendChild(grid);
+      scroll.appendChild(grid);
     }
- 
+
     const explain = el('div', {class:'vapis-explain'},
       el('h3', null, '📖 About this method'),
       ...eq.explain.map(html => el('p', {html}))
     );
-    panel.appendChild(explain);
- 
+    scroll.appendChild(explain);
+    panel.appendChild(scroll);
+
     panelsEl.appendChild(panel);
     renderSummary(eq);
   });
@@ -268,8 +320,9 @@
     const fields = el('div', {class:'vapis-fields'});
     eq.fields.forEach(f => {
       const fieldWrap = el('div', {class:'vapis-field'});
-      const range = el('input', {type:'range', min:f.min, max:f.max, step:f.step, value:row[f.key]});
-      const num = el('input', {type:'number', min:f.min, max:f.max, step:f.step, value:row[f.key]});
+      const currentVal = row[f.key];
+      const range = el('input', {type:'range', min:f.min, max:f.max, step:f.step, value:currentVal});
+      const num = el('input', {type:'number', min:f.min, max:f.max, step:f.step, value:currentVal});
       const head = el('div', {class:'vapis-field-head'},
         el('label', null, f.label, el('span', {class:'vapis-unit'}, f.unit)),
         num
@@ -311,19 +364,21 @@
       s.rows.forEach((row, idx) => {
         const out = eq.compute(row, s.ctx);
         const card = document.getElementById('vapis-mode-' + eq.id + '-' + idx);
+        if(!card) return;
         eq.outputs.forEach(o => {
           const chip = card.querySelector('[data-out="' + o.key + '"] .vapis-out-val');
           const val = out[o.key];
-          chip.textContent = (val === null || val === undefined) ? 'N/A' : fmt(val, o.dec) + ' ' + o.unit.split('/')[0].trim();
+          if(chip) chip.textContent = (val === null || val === undefined) ? 'N/A' : fmt(val, o.dec) + ' ' + o.unit.split('/')[0].trim();
         });
       });
-      // top control sum warning (for % based fields)
       const pctField = eq.fields.find(f => f.unit === '%');
       if (eq.topControl && pctField) {
         const sum = s.rows.reduce((a, r) => a + (r[pctField.key] || 0), 0);
         const panel = document.getElementById('vapis-panel-' + eq.id);
-        const warnEl = panel.querySelector('.vapis-warn');
-        if (warnEl) warnEl.textContent = Math.abs(sum - 100) > 0.5 ? ('Shares sum to ' + fmt(sum,0) + '%, not 100%') : '';
+        if (panel) {
+          const warnEl = panel.querySelector('.vapis-warn');
+          if (warnEl) warnEl.textContent = Math.abs(sum - 100) > 0.5 ? ('Shares sum to ' + fmt(sum,0) + '%, not 100%') : '';
+        }
       }
     }
     renderSummary(eq);
@@ -331,33 +386,29 @@
  
   function renderSummary(eq){
     const summary = document.getElementById('vapis-summary-' + eq.id);
+    if (!summary) return;
     summary.innerHTML = '';
+    
+    // Dynamically tag the summary badge header with the active pollutant name
+    const dynamicLabel = `${eq.totalLabel} (${currentPollutant})`;
+
     if (eq.type === 'modes') {
       const s = state[eq.id];
-      let total = 0, secondary = 0;
+      let total = 0;
       s.rows.forEach(row => {
         const out = eq.compute(row, s.ctx);
         total += out[eq.totalKey] || 0;
-        if (eq.secondaryKey) secondary += out[eq.secondaryKey] || 0;
       });
       summary.appendChild(el('div', {class:'vapis-summary-block'},
-        el('div', {class:'vapis-total-label'}, eq.totalLabel),
+        el('div', {class:'vapis-total-label'}, dynamicLabel),
         el('div', {class:'vapis-total-value'}, fmt(total, 1)),
         el('div', {class:'vapis-total-unit'}, eq.totalUnit)
       ));
-      if (eq.secondaryKey) {
-        summary.appendChild(el('div', {class:'vapis-summary-divider'}));
-        summary.appendChild(el('div', {class:'vapis-summary-block'},
-          el('div', {class:'vapis-total-label'}, eq.secondaryLabel),
-          el('div', {class:'vapis-total-value'}, fmt(secondary, 1)),
-          el('div', {class:'vapis-total-unit'}, eq.secondaryUnit)
-        ));
-      }
     } else {
       const s = state[eq.id];
       const val = eq.compute(s.params);
       summary.appendChild(el('div', {class:'vapis-summary-block'},
-        el('div', {class:'vapis-total-label'}, eq.totalLabel),
+        el('div', {class:'vapis-total-label'}, dynamicLabel),
         el('div', {class:'vapis-total-value'}, fmt(val, 1)),
         el('div', {class:'vapis-total-unit'}, eq.totalUnit)
       ));
@@ -370,15 +421,8 @@
   function resetEquation(eq){
     if (eq.type === 'modes') {
       state[eq.id].rows = eq.rows.map(r => ({...r}));
+      applyPollutantDefaults(eq.id, currentPollutant);
       if (eq.topControl) state[eq.id].ctx = {[eq.topControl.key]: eq.topControl.value};
-      // rebuild inputs' displayed values
-      eq.rows.forEach((r, idx) => {
-        const card = document.getElementById('vapis-mode-' + eq.id + '-' + idx);
-        eq.fields.forEach(f => {
-          const inputs = card.querySelectorAll('input');
-        });
-      });
-      // simplest: re-render whole panel content for that equation
       rebuildModesPanel(eq);
     } else {
       eq.params.forEach(f => state[eq.id].params[f.key] = f.value);
@@ -389,23 +433,25 @@
  
   function rebuildModesPanel(eq){
     const panel = document.getElementById('vapis-panel-' + eq.id);
+    if (!panel) return;
     const oldModes = panel.querySelector('.vapis-modes');
     const modesWrap = el('div', {class:'vapis-modes'});
-    eq.rows.forEach((row, idx) => modesWrap.appendChild(buildModeCard(eq, idx)));
-    oldModes.replaceWith(modesWrap);
+    state[eq.id].rows.forEach((row, idx) => modesWrap.appendChild(buildModeCard(eq, idx)));
+    if(oldModes) oldModes.replaceWith(modesWrap);
     if (eq.topControl) {
       const oldTc = panel.querySelector('.vapis-topcontrol');
       const newTc = buildTopControl(eq);
-      oldTc.replaceWith(newTc);
+      if(oldTc) oldTc.replaceWith(newTc);
     }
   }
  
   function rebuildParamsPanel(eq){
     const panel = document.getElementById('vapis-panel-' + eq.id);
+    if (!panel) return;
     const oldGrid = panel.querySelector('.vapis-params-grid');
     const grid = el('div', {class:'vapis-params-grid'});
     eq.params.forEach(f => grid.appendChild(buildParamCard(eq, f)));
-    oldGrid.replaceWith(grid);
+    if(oldGrid) oldGrid.replaceWith(grid);
   }
  
   // initial paint
