@@ -39,7 +39,7 @@
       return {D, I, J, K};
     },
     explain: [
-      `This method works from travel-demand data: the share of trips made by each mode, how far a typical trip is, and how many people share each vehicle. Vehicle-distance is derived by dividing passenger-distance by occupancy[cite: 2].`,
+      `This method works from travel-demand data: the share of trips made by each mode, how far a typical trip is, and how many people share each vehicle. Vehicle-distance is derived by dividing passenger-distance by occupancy.`,
       `<span class="vapis-formula">Distance = (Trips × Trip Length) / Occupancy; Emissions = Distance × EF</span>`
     ]
   };
@@ -96,7 +96,7 @@
     const panel = el('div', {class: 'vapis-panel active', id: 'vapis-panel-' + eq.id});
     
     const frozen = el('div', {class: 'vapis-panel-frozen'});
-    frozen.appendChild(el('h2', null, eq.title));
+    // frozen.appendChild(el('h2', null, eq.title));
     panel.appendChild(frozen);
 
     const scroll = el('div', {class: 'vapis-scroll'});
@@ -115,7 +115,7 @@
 
     const rightSide = el('div', {class: 'vapis-right'});
 
-    const selectLabel = el('label', {style: 'font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px;'}, 'Chart Data Source:');
+    const selectLabel = el('label', {style: 'font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px;'}, '');
     rightSide.appendChild(selectLabel);
     
     const chartSelect = el('select', {class: 'vapis-chart-selector'});
@@ -185,8 +185,11 @@
 
       eq.outputs.forEach(o => { tr.appendChild(el('td', {class: 'vapis-output-cell', 'data-out': o.key}, '—')); });
 
-      const delTd = el('td');
-      const delBtn = el('button', {class: 'vapis-row-delete', title: 'Remove category', style: 'border:none; background:transparent; color:var(--muted, #888); cursor:pointer; font-size:16px; line-height:1;'}, '✕');
+      const delTd = el('td',{class: 'vapis-delete-cell'});
+      const delBtn = el('button', {
+        class: 'vapis-row-delete',
+        title: 'Remove category'
+      }, '✕');
       if (state.rows.length <= 1) { delBtn.disabled = true; delBtn.style.opacity = '0.3'; delBtn.style.cursor = 'not-allowed'; }
       delBtn.addEventListener('click', () => removeRow(idx));
       delTd.appendChild(delBtn); tr.appendChild(delTd);

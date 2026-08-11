@@ -91,7 +91,7 @@
     const panel = el('div', {class: 'vapis-panel active', id: 'vapis-panel-' + eq.id});
     
     const frozen = el('div', {class: 'vapis-panel-frozen'});
-    frozen.appendChild(el('h2', null, eq.title));
+    // frozen.appendChild(el('h2', null, eq.title));
     panel.appendChild(frozen);
 
     const scroll = el('div', {class: 'vapis-scroll'});
@@ -210,11 +210,10 @@
         tr.appendChild(el('td', {class: 'vapis-output-cell', 'data-out': o.key}, '—'));
       });
 
-      const delTd = el('td');
+      const delTd = el('td',{class: 'vapis-delete-cell'});
       const delBtn = el('button', {
         class: 'vapis-row-delete',
-        title: 'Remove category',
-        style: 'border:none; background:transparent; color:var(--muted, #888); cursor:pointer; font-size:16px; line-height:1;'
+        title: 'Remove category'
       }, '✕');
       if (state.rows.length <= 1) {
         delBtn.disabled = true;

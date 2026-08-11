@@ -38,7 +38,7 @@
     const panel = el('div', {class: 'vapis-panel active', id: 'vapis-panel-' + eq.id});
     
     const frozen = el('div', {class: 'vapis-panel-frozen'});
-    frozen.appendChild(el('h2', null, eq.title));
+    // frozen.appendChild(el('h2', null, eq.title));
     panel.appendChild(frozen);
 
     const scroll = el('div', {class: 'vapis-scroll'});
