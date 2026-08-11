@@ -3,7 +3,7 @@
 
   const currentPollutant = 'PM2.5';
   let chartInstance = null;
-  let currentChartVar = 'H'; // Default to Emissions
+  let currentChartVar = 'H'; // Default to Emissions (H for emissions in Method 2)
 
   const eq = {
     id: 'eq2',
@@ -34,7 +34,7 @@
       return {D, G, H};
     },
     explain: [
-      `Instead of counting vehicles, this method starts from total fuel sold in the city (from fuel-retail or taxation data) and splits it across vehicle types by their estimated share of consumption.`,
+      `Instead of counting vehicles, this method starts from total fuel sold in the city and splits it across vehicle types by their estimated share of consumption.`,
       `<span class="vapis-formula">Fuel per mode = Share % × Total Fuel; Distance = Fuel × Fuel Efficiency; Emissions = Distance × EF</span>`
     ]
   };
@@ -109,19 +109,24 @@
     leftSide.appendChild(explain);
     splitContainer.appendChild(leftSide);
 
-    // RIGHT SIDE: Summary Block + Chart Selector + Chart
+    // RIGHT SIDE: Chart Selector + Chart + Summary Block
     const rightSide = el('div', {class: 'vapis-right'});
-    
-    const summary = el('div', {class: 'vapis-summary', id: 'vapis-summary', style: 'margin-bottom: 16px; padding: 12px 16px;'});
-    rightSide.appendChild(summary);
 
-    const selectLabel = el('label', {style: 'font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px;'}, 'Chart Data Source:');
+    const selectLabel = el('label', {style: 'font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px;'}, '');
     rightSide.appendChild(selectLabel);
     
     const chartSelect = el('select', {class: 'vapis-chart-selector'});
-    eq.outputs.forEach(o => {
-      chartSelect.appendChild(el('option', {value: o.key}, o.label));
+    
+    // Restricted chart options: Share of Fuel Used (C), Distance Travelled (G), Emissions (H)
+    const allowedChartVars = [
+      {key: 'G', label: 'Distance Travelled'},
+      {key: 'H', label: 'Emissions'}
+    ];
+    
+    allowedChartVars.forEach(opt => {
+      chartSelect.appendChild(el('option', {value: opt.key}, opt.label));
     });
+    
     chartSelect.value = currentChartVar;
     chartSelect.addEventListener('change', (e) => {
       currentChartVar = e.target.value;
@@ -133,6 +138,9 @@
     const canvas = el('canvas', {id: 'chart-canvas'});
     chartContainer.appendChild(canvas);
     rightSide.appendChild(chartContainer);
+    
+    const summary = el('div', {class: 'vapis-summary', id: 'vapis-summary', style: 'margin-top: 16px; padding: 12px 16px;'});
+    rightSide.appendChild(summary);
 
     splitContainer.appendChild(rightSide);
     scroll.appendChild(splitContainer);
@@ -295,7 +303,16 @@
       }
 
       labels.push(row.name);
-      chartData.push(out[currentChartVar] || 0);
+      
+      // Extract data based on user selection (C for Share of Fuel, G for Distance Travelled, H for Emissions)
+      if (currentChartVar === 'C') {
+        chartData.push(row.C || 0);
+      } else if (currentChartVar === 'G') {
+        chartData.push(out.G || 0);
+      } else {
+        chartData.push(out.H || 0);
+      }
+
       totalEmissions += (out[eq.totalKey] || 0);
     });
 
