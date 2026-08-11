@@ -1,214 +1,42 @@
+/* =========================================================
+   BASE STYLES & VARIABLES
+   ========================================================= */
 #vapis-root, #vapis-root * { box-sizing: border-box; }
 #vapis-root {
---green: #164D12;
---green-light: #2c7a26;
---green-pale: #e7efe4;
---bg: #f5f6f4;
---card: #ffffff;
---ink: #1c231b;
---muted: #5c6b58;
---border: #dde3d9;
---amber: #b5750f;
---amber-pale: #fbf1e0;
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-background: var(--bg);
-color: var(--ink);
-padding: clamp(14px, 3vw, 32px);
-max-width: 1080px;
-margin: 0 auto;
-line-height: 1.45;
+  --green: #164D12;
+  --green-light: #2c7a26;
+  --green-pale: #e7efe4;
+  --bg: #f5f6f4;
+  --card: #ffffff;
+  --ink: #1c231b;
+  --muted: #5c6b58;
+  --border: #dde3d9;
+  --amber: #b5750f;
+  --amber-pale: #fbf1e0;
+  
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  padding: clamp(10px, 2vw, 24px);
+  /* Overridden to use maximum screen space for wide tabular layouts */
+  max-width: 100% !important; 
+  margin: 0 auto;
+  line-height: 1.45;
 }
+
 #vapis-root h1, #vapis-root h2, #vapis-root h3 {
-font-family: 'Source Serif 4', Georgia, serif;
-color: var(--green);
-margin: 0 0 4px 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  color: var(--green);
+  margin: 0 0 4px 0;
 }
+
 .vapis-header { margin-bottom: 20px; }
 .vapis-header h1 { font-size: clamp(22px, 4vw, 30px); font-weight: 700; }
 .vapis-header p { margin: 4px 0 0 0; color: var(--muted); font-size: 14.5px; max-width: 640px; }
 
-.vapis-tabs {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
-background: var(--green-pale);
-padding: 6px;
-border-radius: 12px;
-margin-bottom: 18px;
-}
-.vapis-tab {
-flex: 1 1 140px;
-text-align: center;
-padding: 10px 10px;
-border: none;
-background: transparent;
-color: var(--green);
-font-family: 'Inter', sans-serif;
-font-weight: 600;
-font-size: 13.5px;
-border-radius: 8px;
-cursor: pointer;
-transition: background .15s ease, color .15s ease, box-shadow .15s ease;
-}
-.vapis-tab .vapis-tab-sub { display:block; font-weight: 400; font-size: 11.5px; opacity: .75; margin-top: 1px;}
-.vapis-tab:hover { background: #d9e6d5; }
-.vapis-tab.active { background: var(--green); color: #fff; box-shadow: 0 2px 6px rgba(22,77,18,.25); }
-.vapis-tab.active .vapis-tab-sub { opacity: .85; }
-
-.vapis-panel { display: none; flex-direction: column; animation: vapis-fade .2s ease; height: clamp(460px, 72vh, 740px); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg); }
-.vapis-panel.active { display: flex; }
-@keyframes vapis-fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
-
-.vapis-panel-frozen { flex: 0 0 auto; padding: 16px 16px 0 16px; background: var(--bg); }
-.vapis-panel-frozen h2 { font-size: 17px; }
-.vapis-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 14px 16px 16px 16px; }
-.vapis-scroll::-webkit-scrollbar { width: 8px; }
-.vapis-scroll::-webkit-scrollbar-track { background: transparent; }
-.vapis-scroll::-webkit-scrollbar-thumb { background: #c7d2c2; border-radius: 8px; }
-.vapis-scroll::-webkit-scrollbar-thumb:hover { background: var(--green-light); }
-
-.vapis-summary {
-display: flex;
-align-items: center;
-gap: 16px;
-background: var(--green);
-background: linear-gradient(135deg, var(--green), #1f6418);
-border-radius: 14px;
-padding: 16px 22px;
-color: #fff;
-margin-bottom: 14px;
-box-shadow: 0 4px 14px rgba(22,77,18,.18);
-}
-.vapis-summary .vapis-total-label { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
-.vapis-summary .vapis-total-value { font-family: 'Source Serif 4', serif; font-size: clamp(30px, 6vw, 44px); font-weight: 700; line-height: 1.1; }
-.vapis-summary .vapis-total-unit { font-size: 13.5px; opacity: .85; font-weight: 400; }
-.vapis-summary-block { display:flex; flex-direction: column; justify-content: center; gap:2px; flex: 1 1 auto; }
-.vapis-reset-btn {
-margin-left: auto;
-align-self: center;
-flex: 0 0 auto;
-background: rgba(255,255,255,.15);
-border: 1px solid rgba(255,255,255,.4);
-color: #fff;
-padding: 8px 14px;
-border-radius: 8px;
-font-size: 12.5px;
-font-weight: 600;
-cursor: pointer;
-font-family: 'Inter', sans-serif;
-white-space: nowrap;
-}
-.vapis-reset-btn:hover { background: rgba(255,255,255,.25); }
-
-.vapis-topcontrol {
-background: var(--amber-pale);
-border: 1px solid #eddcb5;
-border-radius: 12px;
-padding: 14px 16px;
-margin-bottom: 16px;
-}
-.vapis-topcontrol .vapis-tc-toprow {
-display: flex;
-flex-wrap: wrap;
-align-items: baseline;
-justify-content: space-between;
-gap: 8px;
-margin-bottom: 8px;
-}
-.vapis-topcontrol .vapis-tc-label { font-weight: 600; font-size: 13.5px; color: var(--amber); }
-.vapis-topcontrol .vapis-tc-controls { display:flex; align-items:center; width: 100%; gap: 10px; }
-.vapis-topcontrol input[type=range] { flex: 1 1 auto; width: 100%; accent-color: var(--amber); }
-.vapis-topcontrol input[type=number] { width: 90px; flex: 0 0 auto; }
-.vapis-topcontrol .vapis-warn { font-size: 12px; color: #a13b2a; font-weight: 600; margin-top: 6px; }
-
-.vapis-modes { display: flex; flex-direction: column; gap: 12px; }
-.vapis-mode-card {
-background: var(--card);
-border: 1px solid var(--border);
-border-radius: 12px;
-padding: 14px 16px;
-}
-.vapis-mode-head {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 10px;
-margin-bottom: 10px;
-flex-wrap: wrap;
-}
-.vapis-mode-name { font-weight: 700; font-size: 15px; color: var(--green); }
-.vapis-mode-outputs { display: flex; gap: 14px; flex-wrap: wrap; }
-.vapis-out-chip { text-align: right; }
-.vapis-out-chip .vapis-out-val { font-weight: 700; font-size: 14px; color: var(--ink); }
-.vapis-out-chip .vapis-out-lab { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
-
-.vapis-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 18px; }
-.vapis-field { min-width: 0; }
-.vapis-field-head {
-display: flex;
-align-items: baseline;
-justify-content: space-between;
-gap: 8px;
-margin-bottom: 6px;
-}
-.vapis-field-head label { font-size: 12px; color: var(--muted); min-width: 0; }
-.vapis-field-head label .vapis-unit { color: #93a08e; display:block; font-size: 10.5px; }
-.vapis-field-row { display: flex; align-items: center; width: 100%; }
-.vapis-field input[type=range] {
-width: 100%;
-display: block;
-accent-color: var(--green-light);
-height: 4px;
-margin: 0;
-}
-.vapis-field input[type=number],
-.vapis-topcontrol input[type=number],
-.vapis-param-card input[type=number] {
-width: 92px;
-flex: 0 0 auto;
-padding: 4px 6px;
-border: 1px solid var(--border);
-border-radius: 6px;
-font-size: 12.5px;
-background: #fbfcfa;
-color: var(--ink);
-font-family: 'Inter', sans-serif;
-}
-.vapis-field input[type=number]:focus, .vapis-topcontrol input[type=number]:focus { outline: 2px solid var(--green-light); outline-offset: 1px; }
-
-.vapis-params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 4px;}
-.vapis-param-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-.vapis-param-card .vapis-field-head { margin-bottom: 8px; }
-.vapis-param-card .vapis-field-head label { font-weight: 600; font-size: 13px; color: var(--green); }
-.vapis-param-card .vapis-unit { font-weight: 400; color: var(--muted); font-size: 11.5px; }
-.vapis-param-card input[type=number] { width: 76px; }
-
-.vapis-explain {
-margin-top: 20px;
-background: var(--card);
-border: 1px solid var(--border);
-border-left: 4px solid var(--green);
-border-radius: 0 10px 10px 0;
-padding: 16px 18px;
-}
-.vapis-explain h3 { font-size: 15.5px; margin-bottom: 6px; }
-.vapis-explain p { margin: 0 0 8px 0; font-size: 13.5px; color: #3a4536; }
-.vapis-explain p:last-child { margin-bottom: 0; }
-.vapis-explain .vapis-formula {
-display: inline-block;
-background: var(--green-pale);
-border-radius: 6px;
-padding: 2px 8px;
-font-family: 'Source Serif 4', serif;
-font-style: italic;
-color: var(--green);
-margin: 4px 0;
-font-size: 13px;
-}
-
-.vapis-footer { margin-top: 22px; text-align: center; font-size: 11.5px; color: #93a08e; }
-
-/* Pollutant Selector Widget Styling */
+/* =========================================================
+   NAVIGATION & POLLUTANT SELECTOR
+   ========================================================= */
 .vapis-pollutant-selector-wrap {
   margin: -4px 0 20px 0;
   background: var(--card);
@@ -241,8 +69,292 @@ font-size: 13px;
   border-color: var(--green-light);
 }
 
+.vapis-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--green-pale);
+  padding: 6px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+.vapis-tab {
+  flex: 1 1 140px;
+  text-align: center;
+  padding: 10px 10px;
+  border: none;
+  background: transparent;
+  color: var(--green);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13.5px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.vapis-tab .vapis-tab-sub { display:block; font-weight: 400; font-size: 11.5px; opacity: .75; margin-top: 1px;}
+.vapis-tab:hover { background: #d9e6d5; }
+.vapis-tab.active { background: var(--green); color: #fff; box-shadow: 0 2px 6px rgba(22,77,18,.25); }
+.vapis-tab.active .vapis-tab-sub { opacity: .85; }
+
+/* =========================================================
+   PANELS & CONTAINERS
+   ========================================================= */
+.vapis-panel { display: none; flex-direction: column; animation: vapis-fade .2s ease; height: clamp(460px, 72vh, 740px); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg); }
+.vapis-panel.active { display: flex; }
+@keyframes vapis-fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
+
+.vapis-panel-frozen { flex: 0 0 auto; padding: 16px 16px 0 16px; background: var(--bg); }
+.vapis-panel-frozen h2 { font-size: 17px; }
+.vapis-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 14px 16px 16px 16px; }
+.vapis-scroll::-webkit-scrollbar { width: 8px; }
+.vapis-scroll::-webkit-scrollbar-track { background: transparent; }
+.vapis-scroll::-webkit-scrollbar-thumb { background: #c7d2c2; border-radius: 8px; }
+.vapis-scroll::-webkit-scrollbar-thumb:hover { background: var(--green-light); }
+
+/* =========================================================
+   SUMMARY BLOCK
+   ========================================================= */
+.vapis-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--green);
+  background: linear-gradient(135deg, var(--green), #1f6418);
+  border-radius: 14px;
+  padding: 16px 22px;
+  color: #fff;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(22,77,18,.18);
+}
+.vapis-summary .vapis-total-label { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+.vapis-summary .vapis-total-value { font-family: 'Source Serif 4', serif; font-size: clamp(30px, 6vw, 44px); font-weight: 700; line-height: 1.1; }
+.vapis-summary .vapis-total-unit { font-size: 13.5px; opacity: .85; font-weight: 400; }
+.vapis-summary-block { display:flex; flex-direction: column; justify-content: center; gap:2px; flex: 1 1 auto; }
+.vapis-reset-btn {
+  margin-left: auto;
+  align-self: center;
+  flex: 0 0 auto;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.4);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.vapis-reset-btn:hover { background: rgba(255,255,255,.25); }
+
+/* =========================================================
+   NEW SPLIT LAYOUT (Strict 70/30 & Chart Restraints)
+   ========================================================= */
+.vapis-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 2%;
+}
+.vapis-left {
+  flex: 0 0 68%; /* Strictly reserves ~70% */
+  max-width: 68%;
+  min-width: 0;
+  overflow-x: auto; /* Fallback if table gets too wide */
+}
+.vapis-right {
+  flex: 0 0 30%; /* Strictly reserves 30% */
+  max-width: 30%;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* =========================================================
+   CHART COMPONENT
+   ========================================================= */
+.vapis-chart-selector {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  background: #fbfcfa;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.vapis-chart-selector:focus {
+  outline: 2px solid var(--green-light);
+  outline-offset: 1px;
+}
+.vapis-chart-container {
+  position: relative; /* REQUIRED to contain Chart.js */
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 350px; /* Prevents vertical blowout */
+  margin: 0 auto;
+}
+
+/* =========================================================
+   TABULAR DATA GRID & STRETCHED INPUTS
+   ========================================================= */
+.vapis-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  table-layout: fixed; /* Ensures even column distribution */
+}
+.vapis-table th, .vapis-table td {
+  padding: 10px 12px;
+  text-align: right;
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+.vapis-table th {
+  background: var(--green-pale);
+  color: var(--green);
+  font-weight: 600;
+  text-align: center;
+  vertical-align: bottom;
+  line-height: 1.25;
+}
+.vapis-table td:first-child, .vapis-table th:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: var(--green);
+  width: 120px; /* Fixed width for the category column */
+}
+.vapis-table .vapis-output-cell {
+  background: #fbfbfc;
+  font-weight: 600;
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+/* Stretched cell wrapper for both number and slider */
+.vapis-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Forces children to occupy full width */
+  gap: 8px;
+}
+.vapis-cell-wrap input[type=number] {
+  width: 100%;
+  max-width: 100%;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12.5px;
+  text-align: right;
+  background: #fff;
+}
+.vapis-cell-wrap input[type=number]:focus {
+  outline: 2px solid var(--green-light);
+  outline-offset: 1px;
+}
+.vapis-cell-wrap input[type=range] {
+  width: 100%;
+  max-width: 100%;
+  height: 6px;
+  margin: 0;
+  accent-color: var(--green-light);
+  cursor: pointer;
+}
+
+/* =========================================================
+   EXPLAIN/INFO BOX
+   ========================================================= */
+.vapis-explain {
+  margin-top: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 18px;
+}
+.vapis-explain h3 { font-size: 15.5px; margin-bottom: 6px; }
+.vapis-explain p { margin: 0 0 8px 0; font-size: 13.5px; color: #3a4536; }
+.vapis-explain p:last-child { margin-bottom: 0; }
+.vapis-explain .vapis-formula {
+  display: inline-block;
+  background: var(--green-pale);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  color: var(--green);
+  margin: 4px 0;
+  font-size: 13px;
+}
+.vapis-footer { margin-top: 22px; text-align: center; font-size: 11.5px; color: #93a08e; }
+
+/* =========================================================
+   LEGACY GRID LAYOUTS (Retained for Method 4 Box Model)
+   ========================================================= */
+.vapis-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 18px; }
+.vapis-field { min-width: 0; }
+.vapis-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.vapis-field-head label { font-size: 12px; color: var(--muted); min-width: 0; }
+.vapis-field-head label .vapis-unit { color: #93a08e; display:block; font-size: 10.5px; }
+.vapis-field-row { display: flex; align-items: center; width: 100%; }
+.vapis-field input[type=range] {
+  width: 100%;
+  display: block;
+  accent-color: var(--green-light);
+  height: 4px;
+  margin: 0;
+}
+.vapis-field input[type=number],
+.vapis-param-card input[type=number] {
+  width: 92px;
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: #fbfcfa;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+}
+.vapis-field input[type=number]:focus { outline: 2px solid var(--green-light); outline-offset: 1px; }
+
+.vapis-params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 4px;}
+.vapis-param-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.vapis-param-card .vapis-field-head { margin-bottom: 8px; }
+.vapis-param-card .vapis-field-head label { font-weight: 600; font-size: 13px; color: var(--green); }
+.vapis-param-card .vapis-unit { font-weight: 400; color: var(--muted); font-size: 11.5px; }
+.vapis-param-card input[type=number] { width: 76px; }
+
+/* =========================================================
+   MEDIA QUERIES
+   ========================================================= */
+@media (max-width: 1100px) {
+  .vapis-split { flex-direction: column; gap: 24px; }
+  .vapis-left { flex: none; width: 100%; max-width: 100%; }
+  .vapis-right { flex: none; width: 100%; max-width: 400px; margin: 0 auto; position: static; }
+  .vapis-table { table-layout: auto; } 
+}
+
 @media (max-width: 520px) {
-.vapis-tab .vapis-tab-sub { display: none; }
-.vapis-mode-outputs { width: 100%; justify-content: flex-start; }
-.vapis-reset-btn { margin-left: 0; }
+  .vapis-tab .vapis-tab-sub { display: none; }
+  .vapis-reset-btn { margin-left: 0; }
 }

@@ -8,21 +8,82 @@
 <link rel="icon" href="https://urbanemissions.info/wp-content/uploads/2016/04/cropped-Big_Grid_512-164D12-32x32.png" type="image/jpeg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  .vapis-index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .vapis-method-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .vapis-method-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(22,77,18,0.1);
+    border-color: var(--green-light);
+  }
+  .vapis-method-card h3 {
+    font-size: 18px;
+    margin: 0;
+  }
+  .vapis-method-card span {
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .vapis-method-card .vapis-link-text {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green);
+  }
+</style>
 </head>
 <body>
 
 <div id="vapis-root">
   <div class="vapis-header">
     <h1>Vehicular Emissions Calculator</h1>
-    <p>Four estimation methods for vehicular air pollutant emissions, adapted from CPCB-style emission inventory equations. Adjust any slider — every table and total recalculates live.</p>
+    <p>Four estimation methods for vehicular air pollutant emissions, adapted from CPCB-style emission inventory equations. Select a method below to begin.</p>
   </div>
 
-  <div class="vapis-tabs" id="vapis-tabs" role="tablist"></div>
-  <div id="vapis-panels"></div>
+  <div class="vapis-index-grid">
+    <a href="method1.html" class="vapis-method-card">
+      <h3>Method 1</h3>
+      <span>Vehicle-km travelled (VKT) activity-based bottom-up approach.</span>
+      <div class="vapis-link-text">Launch Calculator &rarr;</div>
+    </a>
+
+    <a href="method2.html" class="vapis-method-card">
+      <h3>Method 2</h3>
+      <span>Fuel sales and city-wide fuel consumption breakdown.</span>
+      <div class="vapis-link-text">Launch Calculator &rarr;</div>
+    </a>
+
+    <a href="method3.html" class="vapis-method-card">
+      <h3>Method 3</h3>
+      <span>Passenger trip-based travel demand and modal shares.</span>
+      <div class="vapis-link-text">Launch Calculator &rarr;</div>
+    </a>
+
+    <a href="method4.html" class="vapis-method-card">
+      <h3>Method 4</h3>
+      <span>Concentration-based top-down Eulerian box model.</span>
+      <div class="vapis-link-text">Launch Calculator &rarr;</div>
+    </a>
+  </div>
 
   <div class="vapis-footer">Emission factors, activity levels and dispersion parameters are illustrative defaults — replace with local survey or monitoring data for real assessments.</div>
 </div>
-<script src="script.js"></script>
 
 </body>
 </html>
