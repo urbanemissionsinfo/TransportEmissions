@@ -1,7 +1,7 @@
 (function(){
   "use strict";
 
-  let currentPollutant = 'PM2.5';
+  const currentPollutant = 'PM2.5';
   let chartInstance = null;
   let currentChartVar = 'J'; // Default to Emissions
 
@@ -15,7 +15,7 @@
       {key:'E', label:'Avg. Trip Length', unit:'km/trip', min:0, max:50, step:0.5},
       {key:'F', label:'Occupancy', unit:'persons/vehicle', min:0.5, max:150, step:0.5},
       {key:'G', label:'Fuel Efficiency', unit:'km/L', min:0, max:60, step:0.5},
-      {key:'H', label:'Emission Factor', unit:'g/km', min:0, max:10, step:0.01},
+      {key:'H', label:'Emission Factor', unit:'g/km', min:0, max:100, step:0.01},
     ],
     outputs: [
       {key:'D', label:'Trips per Mode', unit:'M trips/yr'},
@@ -40,8 +40,7 @@
     },
     explain: [
       `This method works from travel-demand data: the share of trips made by each mode, how far a typical trip is, and how many people share each vehicle. Vehicle-distance is derived by dividing passenger-distance by occupancy.`,
-        `<span class="vapis-formula">Distance = (Trips × Trip Length) / Occupancy; Emissions = Distance × EF</span>`,
-        `It's the natural choice when a household travel survey already exists, and it naturally captures the emissions benefit of higher-occupancy modes like buses.`
+      `<span class="vapis-formula">Distance = (Trips × Trip Length) / Occupancy; Emissions = Distance × EF</span>`
     ]
   };
 
@@ -59,14 +58,6 @@
     });
   }
   applyDefaults(currentPollutant);
-
-  const headerEl = document.getElementById('vapis-header');
-  headerEl.after(createPollutantSelector((newPol) => {
-    currentPollutant = newPol;
-    applyDefaults(currentPollutant);
-    rebuildPanel();
-    renderAll();
-  }));
 
   const panelsEl = document.getElementById('vapis-panels');
 
@@ -106,14 +97,12 @@
     
     const frozen = el('div', {class: 'vapis-panel-frozen'});
     frozen.appendChild(el('h2', null, eq.title));
-    const summary = el('div', {class: 'vapis-summary', id: 'vapis-summary'});
-    frozen.appendChild(summary);
     panel.appendChild(frozen);
 
     const scroll = el('div', {class: 'vapis-scroll'});
     const splitContainer = el('div', {class: 'vapis-split'});
     
-    // LEFT SIDE: Top Control + Table
+    // LEFT SIDE: Top Control + Table + Explanations
     const leftSide = el('div', {class: 'vapis-left'});
     leftSide.appendChild(buildTopControl());
     leftSide.appendChild(buildTable());
@@ -125,9 +114,12 @@
     leftSide.appendChild(explain);
     splitContainer.appendChild(leftSide);
 
-    // RIGHT SIDE: Chart
+    // RIGHT SIDE: Summary Block + Chart Selector + Chart
     const rightSide = el('div', {class: 'vapis-right'});
     
+    const summary = el('div', {class: 'vapis-summary', id: 'vapis-summary', style: 'margin-bottom: 16px; padding: 12px 16px;'});
+    rightSide.appendChild(summary);
+
     const selectLabel = el('label', {style: 'font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px;'}, 'Chart Data Source:');
     rightSide.appendChild(selectLabel);
     
@@ -161,15 +153,29 @@
     const thead = el('thead');
     const headerRow = el('tr');
     headerRow.appendChild(el('th', null, 'Category'));
-    eq.fields.forEach(f => headerRow.appendChild(el('th', null, f.label, el('br'), el('span', {style: 'font-size:11px; font-weight:normal; opacity:0.8;'},))));
+    eq.fields.forEach(f => headerRow.appendChild(el('th', null, f.label, el('br'), el('span', {style: 'font-size:11px; font-weight:normal; opacity:0.8;'}, f.unit))));
     eq.outputs.forEach(o => headerRow.appendChild(el('th', null, o.label, el('br'), el('span', {style: 'font-size:11px; font-weight:normal; opacity:0.8;'}, o.unit))));
+    headerRow.appendChild(el('th', {style: 'width:32px;'}, ''));
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    const tbody = el('tbody');
+    const tbody = el('tbody', {id: 'vapis-tbody'});
     state.rows.forEach((row, idx) => {
       const tr = el('tr', {id: 'vapis-row-' + idx});
-      tr.appendChild(el('td', null, row.name));
+
+      const nameTd = el('td');
+      const nameInput = el('input', {
+        type: 'text',
+        class: 'vapis-name-input',
+        value: row.name,
+        style: 'width:100%; border:none; background:transparent; font:inherit; font-weight:600; color:inherit; padding:2px 0;'
+      });
+      nameInput.addEventListener('input', () => {
+        row.name = nameInput.value;
+        renderAll();
+      });
+      nameTd.appendChild(nameInput);
+      tr.appendChild(nameTd);
       
       eq.fields.forEach(f => {
         const td = el('td');
@@ -201,10 +207,54 @@
         tr.appendChild(el('td', {class: 'vapis-output-cell', 'data-out': o.key}, '—'));
       });
 
+      const delTd = el('td');
+      const delBtn = el('button', {
+        class: 'vapis-row-delete',
+        title: 'Remove category',
+        style: 'border:none; background:transparent; color:var(--muted, #888); cursor:pointer; font-size:16px; line-height:1;'
+      }, '✕');
+      if (state.rows.length <= 1) {
+        delBtn.disabled = true;
+        delBtn.style.opacity = '0.3';
+        delBtn.style.cursor = 'not-allowed';
+      }
+      delBtn.addEventListener('click', () => removeRow(idx));
+      delTd.appendChild(delBtn);
+      tr.appendChild(delTd);
+
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
+
+    const tfoot = el('tfoot');
+    const footRow = el('tr');
+    const totalCols = 1 + eq.fields.length + eq.outputs.length + 1;
+    const footTd = el('td', {colspan: String(totalCols), style: 'padding-top:10px;'});
+    const addBtn = el('button', {class: 'vapis-add-row-btn'}, '+ Add Vehicle Category');
+    addBtn.addEventListener('click', addRow);
+    footTd.appendChild(addBtn);
+    footRow.appendChild(footTd);
+    tfoot.appendChild(footRow);
+    table.appendChild(tfoot);
+
     return table;
+  }
+
+  function addRow() {
+    const defaults = POLLUTANTS[currentPollutant] && POLLUTANTS[currentPollutant].defaults;
+    const name = 'New Category';
+    const newRow = { name, C: 0, E: 5, F: 1.5, G: 10 };
+    newRow.H = (defaults && defaults[name] !== undefined) ? defaults[name] : 0;
+    state.rows.push(newRow);
+    rebuildPanel();
+    renderAll();
+  }
+
+  function removeRow(idx) {
+    if (state.rows.length <= 1) return;
+    state.rows.splice(idx, 1);
+    rebuildPanel();
+    renderAll();
   }
 
   function initChart() {
@@ -217,14 +267,14 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '65%',
+        cutout: '35%',
         plugins: {
           legend: { 
             position: 'right', 
             labels: { 
               padding: 12, 
               boxWidth: 12, 
-              font: { size: 13, family: 'Inter', weight: '500' } 
+              font: { size: 17, family: 'Inter', weight: '500' } 
             } 
           }
         }
@@ -245,7 +295,6 @@
         eq.outputs.forEach(o => {
           const cell = tr.querySelector('[data-out="' + o.key + '"]');
           const val = out[o.key];
-          // Unit removed from cell text
           if(cell) cell.textContent = (val === null || val === undefined) ? 'N/A' : Math.ceil(val).toLocaleString('en-IN');
         });
       }
@@ -266,11 +315,11 @@
     if (summary) {
       summary.innerHTML = '';
       summary.appendChild(el('div', {class:'vapis-summary-block'},
-        el('div', {class:'vapis-total-label'}, `${eq.totalLabel} (${currentPollutant})`),
-        el('div', {class:'vapis-total-value'}, Math.ceil(totalEmissions).toLocaleString('en-IN')),
+        el('div', {class:'vapis-total-label'}, `${eq.totalLabel}`),
+        el('div', {class:'vapis-total-value', style:'font-size: clamp(24px, 4vw, 34px);'}, Math.ceil(totalEmissions).toLocaleString('en-IN')),
         el('div', {class:'vapis-total-unit'}, eq.totalUnit)
       ));
-      const resetBtn = el('button', {class:'vapis-reset-btn'}, '↺ Reset defaults');
+      const resetBtn = el('button', {class:'vapis-reset-btn'}, '↺ Reset');
       resetBtn.addEventListener('click', () => {
         state.rows = eq.rows.map(r => ({...r}));
         state.ctx = {[eq.topControl.key]: eq.topControl.value};

@@ -20,12 +20,12 @@ function el(tag, attrs, ...children){
 function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
 
 const POLLUTANTS = {
-  'PM2.5': { label: 'PM₂.₅ (Particulate Matter ≤ 2.5 µm)', unit: 'tons/yr', defaults: { 'Cars': 0.02, '2-Wheelers': 0.01, '3-Wheelers': 0.03, 'Bus': 0.25, 'Truck': 0.35, 'Walking': 0, 'Bicycle': 0 } },
-  'PM10':  { label: 'PM₁₀ (Particulate Matter ≤ 10 µm)',  unit: 'tons/yr', defaults: { 'Cars': 0.03, '2-Wheelers': 0.015, '3-Wheelers': 0.04, 'Bus': 0.35, 'Truck': 0.50, 'Walking': 0, 'Bicycle': 0 } },
-  'NOx':   { label: 'NOₓ (Nitrogen Oxides)',               unit: 'tons/yr', defaults: { 'Cars': 0.40, '2-Wheelers': 0.15, '3-Wheelers': 0.35, 'Bus': 6.50, 'Truck': 7.00, 'Walking': 0, 'Bicycle': 0 } },
-  'CO':    { label: 'CO (Carbon Monoxide)',              unit: 'tons/yr', defaults: { 'Cars': 1.20, '2-Wheelers': 1.80, '3-Wheelers': 2.20, 'Bus': 3.50, 'Truck': 4.00, 'Walking': 0, 'Bicycle': 0 } },
-  'SO2':   { label: 'SO₂ (Sulphur Dioxide)',             unit: 'tons/yr', defaults: { 'Cars': 0.005, '2-Wheelers': 0.002, '3-Wheelers': 0.004, 'Bus': 0.02, 'Truck': 0.03, 'Walking': 0, 'Bicycle': 0 } },
-  'VOC':   { label: 'VOC/NMHC (Ozone Precursors)',       unit: 'tons/yr', defaults: { 'Cars': 0.15, '2-Wheelers': 0.50, '3-Wheelers': 0.40, 'Bus': 0.85, 'Truck': 1.20, 'Walking': 0, 'Bicycle': 0 } }
+  'PM2.5': { label: 'PM₂.₅ (Particulate Matter ≤ 2.5 µm)', unit: 'tons/yr', defaults: { 'Cars': 0.04, '2-Wheelers': 0.04, '3-Wheelers': 0.04, 'Bus': 0.04, 'Truck': 0.04, 'Walking': 0, 'Bicycle': 0 } },
+  'PM10':  { label: 'PM₁₀ (Particulate Matter ≤ 10 µm)',  unit: 'tons/yr', defaults: { 'Cars': 0.04, '2-Wheelers': 0.04, '3-Wheelers': 0.04, 'Bus': 0.04, 'Truck': 0.04, 'Walking': 0, 'Bicycle': 0 } },
+  'NOx':   { label: 'NOₓ (Nitrogen Oxides)',               unit: 'tons/yr', defaults: { 'Cars': 0.04, '2-Wheelers': 0.04, '3-Wheelers': 0.04, 'Bus': 0.04, 'Truck': 0.04, 'Walking': 0, 'Bicycle': 0 } },
+  'CO':    { label: 'CO (Carbon Monoxide)',              unit: 'tons/yr', defaults: { 'Cars': 0.04, '2-Wheelers': 0.04, '3-Wheelers': 0.04, 'Bus': 0.04, 'Truck': 0.04, 'Walking': 0, 'Bicycle': 0 } },
+  'SO2':   { label: 'SO₂ (Sulphur Dioxide)',             unit: 'tons/yr', defaults: { 'Cars': 0.04, '2-Wheelers': 0.04, '3-Wheelers': 0.04, 'Bus': 0.04, 'Truck': 0.04, 'Walking': 0, 'Bicycle': 0 } },
+  'VOC':   { label: 'VOC/NMHC (Ozone Precursors)',       unit: 'tons/yr', defaults: { 'Cars': 0.04, '2-Wheelers': 0.04, '3-Wheelers': 0.04, 'Bus': 0.04, 'Truck': 0.04, 'Walking': 0, 'Bicycle': 0 } }
 };
 
 function createPollutantSelector(onChangeCallback) {

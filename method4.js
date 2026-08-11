@@ -1,7 +1,7 @@
 (function(){
   "use strict";
 
-  let currentPollutant = 'PM2.5';
+  const currentPollutant = 'PM2.5';
   let chartInstance = null;
 
   const eq = {
@@ -23,8 +23,7 @@
     },
     explain: [
       `This is a reverse "box model": rather than building emissions up from traffic activity, it works backward from a measured ambient concentration. The airshed is treated as a box of a given cross-section and mixing height, through which wind flushes air at a steady speed.`,
-        `<span class="vapis-formula">Emissions = Concentration × Vehicular Share × Cross-section × Length × Mixing Height × Wind Speed × Averaging Period</span>`,
-        `It's most useful as a sanity check on the other three methods — if a bottom-up inventory and this top-down estimate disagree by an order of magnitude, one of your input assumptions needs a second look.`
+      `<span class="vapis-formula">Emissions = Concentration × Vehicular Share × Cross-section × Length × Mixing Height × Wind Speed × Averaging Period</span>`
     ]
   };
 
@@ -33,13 +32,6 @@
   };
   eq.params.forEach(f => state.params[f.key] = f.value);
 
-  // Setup Pollutant Selector Header
-  const headerEl = document.getElementById('vapis-header');
-  headerEl.after(createPollutantSelector((newPol) => {
-    currentPollutant = newPol;
-    renderAll();
-  }));
-
   const panelsEl = document.getElementById('vapis-panels');
 
   function buildPanel() {
@@ -47,14 +39,12 @@
     
     const frozen = el('div', {class: 'vapis-panel-frozen'});
     frozen.appendChild(el('h2', null, eq.title));
-    const summary = el('div', {class: 'vapis-summary', id: 'vapis-summary'});
-    frozen.appendChild(summary);
     panel.appendChild(frozen);
 
     const scroll = el('div', {class: 'vapis-scroll'});
     const splitContainer = el('div', {class: 'vapis-split'});
     
-    // LEFT SIDE: Parameter Cards Grid
+    // LEFT SIDE: Parameter Cards Grid + Explanation
     const leftSide = el('div', {class: 'vapis-left'});
     const grid = el('div', {class: 'vapis-params-grid'});
     eq.params.forEach(f => grid.appendChild(buildParamCard(f)));
@@ -67,17 +57,24 @@
     leftSide.appendChild(explain);
     splitContainer.appendChild(leftSide);
 
-    // RIGHT SIDE: Visual Summary / Info Card (Since Box Model doesn't split by vehicle modes)
+    // RIGHT SIDE: Summary Block + Airshed Info Card
     const rightSide = el('div', {class: 'vapis-right'});
-    rightSide.appendChild(el('div', {style: 'font-weight: 700; color: var(--green); margin-bottom: 10px; font-size: 15px;'}, 'Airshed Dynamics'));
-    rightSide.appendChild(el('p', {style: 'font-size: 13px; color: var(--muted); line-height: 1.5;'}, 'Unlike bottom-up inventory methods, Method 4 treats the entire regional airshed as a single control volume governed by meteorological dilution parameters and pollutant mass-balance principles[cite: 2].'));
     
-    const metricBox = el('div', {style: 'margin-top: 20px; background: var(--green-pale); padding: 14px; border-radius: 8px; border: 1px solid var(--border); text-align: center;'});
+    const summary = el('div', {class: 'vapis-summary', id: 'vapis-summary', style: 'margin-bottom: 16px; padding: 12px 16px;'});
+    rightSide.appendChild(summary);
+
+    const infoCard = el('div', {style: 'margin-top: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;'});
+    infoCard.appendChild(el('div', {style: 'font-weight: 700; color: var(--green); margin-bottom: 8px; font-size: 15px;'}, 'Airshed Dynamics'));
+    infoCard.appendChild(el('p', {style: 'font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0;'}, 'Unlike bottom-up inventory methods, Method 4 treats the entire regional airshed as a single control volume governed by meteorological dilution parameters and pollutant mass-balance principles.'));
+    
+    const metricBox = el('div', {style: 'margin-top: 14px; background: var(--green-pale); padding: 14px; border-radius: 8px; border: 1px solid var(--border); text-align: center;'});
     metricBox.appendChild(el('div', {style: 'font-size: 11px; text-transform: uppercase; color: var(--green); font-weight: 600;'}, 'Model Type'));
     metricBox.appendChild(el('div', {style: 'font-size: 14px; font-weight: 700; color: var(--ink); margin-top: 4px;'}, 'Top-Down Eulerian Box'));
-    rightSide.appendChild(metricBox);
+    infoCard.appendChild(metricBox);
 
+    rightSide.appendChild(infoCard);
     splitContainer.appendChild(rightSide);
+
     scroll.appendChild(splitContainer);
     panel.appendChild(scroll);
     panelsEl.appendChild(panel);
@@ -123,17 +120,17 @@
     const summary = document.getElementById('vapis-summary');
     if (!summary) return;
     summary.innerHTML = '';
-    const dynamicLabel = `${eq.totalLabel} (${currentPollutant})`;
+    const dynamicLabel = `${eq.totalLabel}`;
 
     const val = eq.compute(state.params);
 
     summary.appendChild(el('div', {class:'vapis-summary-block'},
       el('div', {class:'vapis-total-label'}, dynamicLabel),
-      el('div', {class:'vapis-total-value'}, Math.ceil(val).toLocaleString('en-IN')),
+      el('div', {class:'vapis-total-value', style:'font-size: clamp(24px, 4vw, 34px);'}, Math.ceil(val).toLocaleString('en-IN')),
       el('div', {class:'vapis-total-unit'}, eq.totalUnit)
     ));
 
-    const resetBtn = el('button', {class:'vapis-reset-btn'}, '↺ Reset defaults');
+    const resetBtn = el('button', {class:'vapis-reset-btn'}, '↺ Reset');
     resetBtn.addEventListener('click', () => {
       eq.params.forEach(f => state.params[f.key] = f.value);
       rebuildPanel();
