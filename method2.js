@@ -44,7 +44,15 @@
     ctx: {[eq.topControl.key]: eq.topControl.value}
   };
 
-  const CHART_COLORS = ['#164D12', '#b5750f', '#2b7a78', '#8a3c3c', '#5c4a72', '#2c7a26', '#d9a05b'];
+  const EXTENDED_COLORS = [
+  '#164D12', '#b5750f', '#2b7a78', '#8a3c3c', '#5c4a72', 
+  '#d35400', '#2980b9', '#8e44ad', '#27ae60', '#f39c12',
+  '#c0392b', '#16a085', '#2c3e50', '#7f8c8d'
+];
+
+function getRowColor(index) {
+  return EXTENDED_COLORS[index % EXTENDED_COLORS.length];
+}
 
   function applyDefaults(polKey) {
     const defaults = POLLUTANTS[polKey].defaults;
@@ -264,7 +272,7 @@
       type: 'doughnut',
       data: { 
         labels: [], 
-        datasets: [{ data: [], backgroundColor: CHART_COLORS, borderWidth: 2, borderColor: '#fff' }] 
+        datasets: [{ data: [], backgroundColor: [], borderWidth: 2, borderColor: '#fff' }]
       },
       options: {
         responsive: true,
@@ -287,6 +295,7 @@
   function renderAll() {
     const labels = [];
     const chartData = [];
+    const bgColors = [];
     let totalEmissions = 0;
 
     state.rows.forEach((row, idx) => {
@@ -302,6 +311,7 @@
       }
 
       labels.push(row.name);
+      bgColors.push(getRowColor(idx));
       
       // Extract data based on user selection (C for Share of Fuel, G for Distance Travelled, H for Emissions)
       if (currentChartVar === 'C') {
@@ -344,6 +354,7 @@
     if (chartInstance) {
       chartInstance.data.labels = labels;
       chartInstance.data.datasets[0].data = chartData;
+      chartInstance.data.datasets[0].backgroundColor = bgColors;
       chartInstance.update();
     }
   }
